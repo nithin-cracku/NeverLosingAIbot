@@ -1,0 +1,169 @@
+<html><head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<style>
+		body{
+			text-align: center;
+		}
+		table {
+			/*animation : an 3s 6;*/
+			border: 2px solid #0ff;
+		}
+
+		td {
+			text-shadow: 3px 2px 2px green;
+			text-align: center;
+			height: 70px;
+			width: 70px;
+			font-size: 60px;
+			color: orange;
+			border: 1px solid skyblue;
+		}
+
+		#board_id{
+			margin: 10px 25%;
+		}
+		.ce{
+			margin: 0 25%;
+		}
+		/*@keyframes an{
+	from{
+	background: orange;
+	opacity:0.5;
+	}
+	to{
+	background: skyblue:
+	opacity:1;
+	}
+	}*/
+	</style>
+	<script src="Tree.js"></script>
+	<script src="minimax.js"></script>
+	<script src="alpha_beta.js"></script>
+</head>
+
+<body onload="init()">
+	<center>
+	<div id='think' class="ce">
+		Don't hurry. Let me <i style="color: blue;">Think</i> ...
+	</div>
+	<table id="board_id"></table>
+	<div id="k"></div>
+	<!-- window.location.assign(window.location.href); -->
+	<button class="ce" onclick="restart()">Play Again</button>
+	<div class="ce" onclick="send('Hi! Nithin');">by <b style='font-size:1.4em;'>NI<i style='color: blue;'>T</b>hin k</i>umar</div>
+	</center>
+	<script>
+		// counts number of steps
+		var steps = 0;// use path.length instead
+		// path in minimax tree
+		var path = [];
+		/*
+		board - board for tictactoe
+		values 0,1 are for X and O respectively
+		NOTE board[2][2] is not 1 for this reason
+		*/
+		var board ;
+		var minimaxtree = NaN;
+		function restart(){
+			var el = document.getElementById('board_id');
+			el.innerHTML = '';
+			for (var j = 0; j < 3; j++) {
+				// id of a cell is <row#><col#>
+				el.innerHTML += "<tr><td id='" + j + "0' onclick='tic(this)'> </td><td id='" + j + "1' onclick='tic(this)'> </td><td id='" + j + "2' onclick='tic(this)'> </td></tr>";
+			}
+			board = [[9, 8, 7], [6, 5, 4], [3, 2, 10]];
+			path = [];
+			steps = 0;
+		}
+		function init() {
+			setTimeout(function(){minimaxtree = minimax_ab();document.getElementById('think').innerHTML = "<i style='color: blue;'>Think</i>! and take a step";},50);
+			restart();
+		}
+		function next_tic(){//temporary def
+
+			var i = node_on_path(minimaxtree,path).obj[1];
+//			for(var i=0; i<9; i++){
+				
+				var row = parseInt(i/3);
+				var c = board[row][i%3];
+				if( c != 0 && c != 1){
+					var el = document.getElementById(row.toString()+(i%3));
+					tic(el,false);
+					return;
+				}
+
+//			}
+		}
+		function tic(cell,call_next_tic=true) {
+			var row = cell.id.charAt(0);
+			var col = cell.id.charAt(1);
+			if (steps < 9 && board[row][col] > 1) {
+				if (steps % 2 == 0) {
+					cell.innerHTML = "X";
+					board[row][col] = 0;
+				} else {
+					cell.innerHTML = "O";
+					board[row][col] = 1;
+				}
+				steps++;
+				path.push(parseInt(row)*3+parseInt(col));
+				var l = check();
+				if (l >= 0 && l < 3) {
+					if (steps % 2 == 0) {
+						alert("You lost the game :( ");
+						steps = 9;
+						return;
+					} else if (steps % 2 == 1) {
+						alert("X  won the game :)");
+						steps = 9;
+						send("I have won in tic tac toe. with steps "+path);
+						return;
+					}
+				}
+				if (steps > 8) {
+					alert("Draw");
+					return;
+				}
+//				alert(call_next_tic);
+				if(call_next_tic == true){
+					next_tic();
+				}else{
+					console.log('no tick');
+				}
+					
+			}
+		}
+		function check() {
+			for (var j = 0; j < 3; j++) {
+				if (board[j][0] == board[j][1] && board[j][1] == board[j][2]) {
+					grn(j, '0', j, '1', j, '2');
+					return 0;
+				}
+			}
+			for (var j = 0; j < 3; j++) {
+				if (board[0][j] == board[1][j] && board[1][j] == board[2][j]) {
+					grn('0', j, '1', j, '2', j);
+					return 1;
+				}
+			}
+			if (board[1][1] == board[0][0] && board[1][1] == board[2][2]) {
+				grn(0, 0, 1, 1, 2, 2);
+				return 2;
+			}
+			if (board[1][1] == board[0][2] && board[1][1] == board[2][0]) {
+				grn(1, 1, 0, 2, 2, 0);
+				return 2;
+			}
+		}
+		function grn(a1, b1, a2, b2, a3, b3) {
+			document.getElementById(a1.toString() + b1).style.color = "green";
+			document.getElementById(a2.toString() + b2).style.color = "green";
+			document.getElementById(a3.toString() + b3).style.color = "green";
+		}
+		function send(text){
+			window.location.assign("https://api.whatsapp.com/send?phone=919666962037&text="+text);
+		}
+	</script>
+
+</body></html>
